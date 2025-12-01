@@ -9,7 +9,12 @@ import numpy as np
 st.set_page_config(page_title="Deepfake Detection (Frontend -> API)", layout="centered")
 st.title("Deepfake Detection — Frontend (calls FastAPI)")
 
-api_url = st.sidebar.text_input("API URL", value="http://localhost:8000")
+try:
+    default_api = st.secrets["API_URL"]
+except:
+    default_api = "http://localhost:8000"
+
+api_url = st.sidebar.text_input("API URL", value=default_api)
 num_frames = st.sidebar.slider("Frames to sample (server-side)", min_value=1, max_value=12, value=5)
 mode = st.radio("Mode", ["Image", "Video"])
 
