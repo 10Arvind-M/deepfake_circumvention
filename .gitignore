@@ -1,0 +1,10 @@
+# ignore large model + videos + temp files
+*.pth
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.zip
+dataset/
+data/
+__pycache__/

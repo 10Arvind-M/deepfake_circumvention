@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Deepfake Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f3f5f7;
+        }
+        h1 {
+            color: #333;
+        }
+        #preview {
+            width: 480px;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+        .container {
+            padding: 20px;
+            background: white;
+            width: 520px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 8px rgba(0,0,0,0.15);
+        }
+        button {
+            background-color: #0066ff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            margin-top: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #004edb;
+        }
+        #result-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f0ff;
+            border-radius: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Deepfake Detection</h1>
+
+    <label>Select Mode: </label>
+    <select id="mode">
+        <option value="image">Image</option>
+        <option value="video">Video</option>
+    </select>
+
+    <br><br>
+    <input type="file" id="fileInput">
+
+    <div>
+        <video id="videoPreview" width="480" controls style="display:none; margin-top:10px;"></video>
+        <img id="imagePreview" width="480" style="display:none; margin-top:10px;">
+    </div>
+
+    <button onclick="predict()">Predict</button>
+
+    <div id="result-box">
+        <h3>Result:</h3>
+        <pre id="result"></pre>
+    </div>
+</div>
+
+<script>
+function predict() {
+    const mode = document.getElementById('mode').value;
+    const input = document.getElementById('fileInput');
+    const file = input.files[0];
+
+    if (!file) {
+        alert("Please upload a file first!");
+        return;
+    }
+
+    let apiURL = mode === "image" ? "/predict_image" : "/predict_video";
+
+    let formData = new FormData();
+    formData.append("file", file);
+    if (mode === "video") {
+        formData.append("num_frames", 5);
+    }
+
+    fetch(apiURL, {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(json => {
+        document.getElementById("result-box").style.display = "block";
+        document.getElementById("result").textContent = JSON.stringify(json, null, 2);
+    })
+    .catch(err => {
+        alert("Error occurred: " + err);
+    });
+}
+
+document.getElementById("fileInput").onchange = function(event) {
+    const file = event.target.files[0];
+    const mode = document.getElementById('mode').value;
+
+    if (!file) return;
+
+    // Preview Video
+    if (mode === "video") {
+        let video = document.getElementById("videoPreview");
+        let img = document.getElementById("imagePreview");
+        img.style.display = "none";
+
+        video.style.display = "block";
+        video.src = URL.createObjectURL(file);
+    } 
+    // Preview Image
+    else {
+        let img = document.getElementById("imagePreview");
+        let video = document.getElementById("videoPreview");
+        video.style.display = "none";
+
+        img.style.display = "block";
+        img.src = URL.createObjectURL(file);
+    }
+};
+</script>
+
+</body>
+</html>
